@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wecks Shop — демо-магазин цифровых игровых товаров</title>
+<meta name="description" content="Wecks Shop — демонстрационный прототип магазина цифровых игровых товаров. Заказы тестовые.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#f4f5f8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%92%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f4f5f8; --ink: #1d2330; --muted: #6b7385; --line: #e4e7ee;
+    --blue: #2563eb; --blue-soft: #e8f0ff; --red: #d92d3a; --green: #16895a;
+    color-scheme: light; box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { background: var(--bg); }
+  body {
+    margin: 0; min-height: 100vh; color: var(--ink); padding: 16px 16px 110px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  #app { max-width: 520px; margin: 0 auto; }
+  h1 { font-size: 26px; line-height: 1.2; margin: 4px 0 14px; font-weight: 800; }
+  h2 { font-size: 18px; margin: 22px 0 10px; }
+  h3 { font-size: 15px; margin: 0 0 8px; line-height: 1.3; }
+  .muted { color: var(--muted); font-size: 14px; margin: 0; }
+  input, select, textarea {
+    width: 100%; min-height: 48px; font: inherit; font-size: 16px; color: var(--ink); background: #fff;
+    border: 1px solid var(--line); border-radius: 14px; padding: 0 14px; outline: none;
+  }
+  textarea { padding: 12px 14px; min-height: 88px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { border-color: var(--blue); }
+  .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 0; }
+  .filters select { grid-column: 1 / -1; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px 2px; margin: 0 -16px; }
+  .chip {
+    flex: none; min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid var(--line);
+    background: #fff; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap;
+  }
+  .chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(20, 30, 60, 0.05); padding: 14px; margin-bottom: 12px;
+  }
+  .prod { display: flex; gap: 12px; cursor: pointer; position: relative; }
+  .prod h3, .prod .pcat { padding-right: 34px; }
+  .heart { flex: none; width: 44px; height: 44px; border: none; background: none; color: #9aa1b2; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .heart.on { color: #e0364b; }
+  .heart:active { transform: scale(0.9); }
+  .prod .heart { position: absolute; top: 2px; right: 2px; }
+  .scroll { display: flex; gap: 12px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 4px; }
+  .scroll .prod { flex: none; width: 280px; margin-bottom: 8px; }
+  .tile {
+    flex: none; width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 800; background: hsl(var(--h), 90%, 94%); color: hsl(var(--h), 70%, 42%);
+  }
+  .tile.big { width: 96px; height: 96px; font-size: 40px; border-radius: 24px; }
+  .pinfo { flex: 1; min-width: 0; }
+  .pcat { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+  .pbottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .pbottom b { font-size: 17px; white-space: nowrap; }
+  .btn {
+    display: block; width: 100%; min-height: 52px; border: none; border-radius: 16px; background: var(--blue);
+    color: #fff; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 10px;
+  }
+  .btn.small { display: inline-block; width: auto; min-height: 44px; padding: 0 16px; font-size: 15px; margin: 0; }
+  .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn:disabled { opacity: 0.45; }
+  .btn:active { opacity: 0.85; }
+  .link { border: none; background: none; color: var(--blue); font: inherit; font-size: 15px; padding: 12px 0; cursor: pointer; }
+  .out { font-size: 13px; color: var(--muted); }
+  .empty { text-align: center; padding: 48px 16px; }
+  .empty h2 { margin-top: 0; }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .grow { flex: 1; min-width: 0; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button {
+    width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: #fff;
+    font-size: 20px; color: var(--ink); cursor: pointer;
+  }
+  .step button:disabled { opacity: 0.35; }
+  .step span { min-width: 28px; text-align: center; font-weight: 700; }
+  .line { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; }
+  .total { font-size: 20px; border-top: 1px solid var(--line); margin-top: 6px; padding-top: 12px; }
+  .err { color: var(--red); font-size: 14px; margin: 6px 2px 0; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; background: var(--blue-soft); color: var(--blue); }
+  .s1 { background: #fff4dc; color: #a15c00; }
+  .s2 { background: #e2f6ec; color: var(--green); }
+  .s3 { background: #fde8ea; color: var(--red); }
+  .banner { background: #fff4dc; color: #7a4a00; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px; }
+  .foot { max-width: 520px; margin: 24px auto 0; font-size: 12px; line-height: 1.5; color: var(--muted); text-align: center; }
+  #nav {
+    position: fixed; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.96); border-top: 1px solid var(--line);
+    display: flex; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); z-index: 5;
+  }
+  #nav button { flex: 1; min-height: 52px; border: none; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; position: relative; }
+  #nav button.on { color: var(--blue); }
+  .dot { position: absolute; top: 2px; left: calc(50% + 8px); min-width: 20px; height: 20px; border-radius: 10px; background: var(--blue); color: #fff; font-size: 12px; line-height: 20px; padding: 0 5px; }
+  #toast {
+    position: fixed; left: 16px; right: 16px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); max-width: 480px; margin: 0 auto;
+    background: #1d2330; color: #fff; border-radius: 14px; padding: 12px 16px; font-size: 15px; text-align: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 20;
+  }
+  #toast.show { opacity: 1; }
+  #toast.error { background: var(--red); }
+  .back { position: fixed; inset: 0; background: rgba(20, 26, 40, 0.45); z-index: 10; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet {
+    background: #fff; width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; border-radius: 24px 24px 0 0;
+    padding: 20px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+  <footer class="foot">Wecks Shop — демонстрационный прототип. Заказы тестовые, оплата не проводится, данные хранятся только в этом браузере на этом устройстве.</footer>
+  <div id="modal"></div>
+  <div id="toast" role="status"></div>
+  <nav id="nav"></nav>
+
+<script>
+  // ================= 1. Константы и демо-данные =================
+  const CATS = ["Подарочные карты", "Игровая валюта", "Игры и ключи", "Подписки"];
+  const HUES = [214, 200, 226, 240];                       // оттенок заглушки для каждой категории
+  const STATUSES = ["Новый", "В обработке", "Выполнен", "Отменён"];
+  const KEYS = { products: "wecks-products", cart: "wecks-cart", orders: "wecks-orders", favs: "wecks-favorites" };
+  const MAX_QTY = 99;
+
+  // P(id, название, номер категории, цена, популярный, в наличии, описание)
+  const P = (id, name, c, price, popular, available, description) =>
+    ({ id, name, category: CATS[c], price, description, available, popular });
+  const DEMO_PRODUCTS = [
+    P("p1", "Карта «Звёздный порт» 500 ₽", 0, 500, true, true, "Цифровая подарочная карта для пополнения кошелька в вымышленном магазине Звёздный порт."),
+    P("p2", "Карта «Звёздный порт» 1000 ₽", 0, 1000, false, true, "Подарочная карта номиналом 1000 ₽. Код приходит после обработки заказа."),
+    P("p3", "Карта «Звёздный порт» 2500 ₽", 0, 2500, false, true, "Карта большого номинала для крупных покупок и подарков."),
+    P("p4", "Кристаллы Арены ×300", 1, 299, true, true, "Набор из 300 кристаллов для вымышленной игры «Арена»."),
+    P("p5", "Кристаллы Арены ×1200", 1, 999, false, true, "Выгодный набор: 1200 кристаллов для игры «Арена»."),
+    P("p6", "Золото Королевства ×5000", 1, 449, false, false, "5000 золотых монет для игры «Королевство». Временно нет в наличии."),
+    P("p7", "Монеты Гонки ×10000", 1, 199, true, true, "10 000 монет для тюнинга и покупки машин в игре «Гонка»."),
+    P("p8", "Ключ «Лунный сад»", 2, 1290, false, true, "Цифровой ключ уютной приключенческой игры «Лунный сад»."),
+    P("p9", "Ключ «Тени Атлантиды»", 2, 2490, true, true, "Ключ экшен-игры «Тени Атлантиды» с подводными миссиями."),
+    P("p10", "Ключ «Пиксельный дозор»", 2, 590, false, true, "Ретро-платформер «Пиксельный дозор» в формате цифрового ключа."),
+    P("p11", "Подписка «Плей Плюс» 1 месяц", 3, 399, true, true, "Месяц доступа к каталогу игр по вымышленной подписке «Плей Плюс»."),
+    P("p12", "Подписка «Плей Плюс» 12 месяцев", 3, 3290, false, true, "Год подписки «Плей Плюс» по выгодной цене."),
+    P("p13", "Подписка «Облако» 3 месяца", 3, 890, false, true, "Три месяца облачного хранения сохранений для игр.")
+  ];
+
+  // ================= 2. Безопасная работа с localStorage =================
+  const problems = [];                // ключи, чьи данные оказались повреждены
+  let storageWarned = false;
+
+  const isStr = (v) => typeof v === "string" && v.trim() !== "";
+  const isMoney = (v) => Number.isFinite(v) && v >= 0;
+
+  // Проверяем и «чистим» каждый тип данных. Если данные негодные, возвращаем null.
+  function cleanProducts(d) {
+    if (!Array.isArray(d)) return null;
+    const seen = new Set();
+    const list = d
+      .filter((x) => x && isStr(x.id) && isStr(x.name) && CATS.includes(x.category) && isMoney(x.price) && !seen.has(x.id) && seen.add(x.id))
+      .map((x) => ({ id: x.id, name: x.name.trim(), category: x.category, price: Math.round(x.price),
+                     description: String(x.description || ""), available: x.available !== false, popular: x.popular === true }));
+    return list.length ? list : null;
+  }
+  function cleanCart(d) {
+    if (!Array.isArray(d)) return null;
+    const byId = {};
+    d.forEach((x) => {
+      const qty = Math.floor(Number(x && x.qty));
+      if (x && isStr(x.id) && qty >= 1) byId[x.id] = Math.min(MAX_QTY, (byId[x.id] || 0) + qty);   // дубли склеиваем
+    });
+    return Object.keys(byId).map((id) => ({ id, qty: byId[id] }));
+  }
+  function cleanOrders(d) {
+    if (!Array.isArray(d)) return null;
+    return d.filter((o) => o && isStr(o.id) && isStr(o.createdAt) && STATUSES.includes(o.status) && isMoney(o.total) &&
+      o.customer && Array.isArray(o.items) && o.items.length > 0 &&
+      o.items.every((i) => i && isStr(i.name) && isMoney(i.price) && Number.isInteger(i.qty) && i.qty > 0));
+  }
+
+  function cleanFavs(d) {                                  // избранное: список id товаров без повторов
+    if (!Array.isArray(d)) return null;
+    return d.filter((id, i) => isStr(id) && d.indexOf(id) === i);
+  }
+
+  function readStore(key, clean, fallback) {
+    let raw = null;
+    try { raw = localStorage.getItem(key); } catch (e) { problems.push(key); return fallback; }
+    if (raw === null) return fallback;                     // первый запуск: данных ещё нет
+    try {
+      const value = clean(JSON.parse(raw));
+      if (value) return value;
+    } catch (e) {}
+    problems.push(key);                                    // данные повреждены, берём запасной вариант
+    return fallback;
+  }
+  function writeStore(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch (e) {
+      if (!storageWarned) { storageWarned = true; toast("Не удалось сохранить данные в браузере. После перезагрузки они пропадут.", true); }
+      return false;
+    }
+  }
+  const saveProducts = () => writeStore(KEYS.products, state.products);
+  const saveCart = () => writeStore(KEYS.cart, state.cart);
+  const saveFavs = () => writeStore(KEYS.favs, state.favs);
+  const saveOrders = () => writeStore(KEYS.orders, state.orders);
+
+  // ================= 3. Состояние приложения =================
+  const state = {
+    products: readStore(KEYS.products, cleanProducts, DEMO_PRODUCTS.map((p) => ({ ...p }))),
+    cart: readStore(KEYS.cart, cleanCart, []),
+    orders: readStore(KEYS.orders, cleanOrders, []),
+    favs: readStore(KEYS.favs, cleanFavs, []),             // id избранных товаров, новые первыми
+    view: "shop",                                          // shop | favs | cart | checkout | success | orders
+    query: "", cat: "", min: "", max: "", sort: "popular", // фильтры каталога
+    openProduct: null, openOrder: null, confirm: null,     // окна поверх страницы
+    form: { name: "", contact: "", comment: "" }, errors: {},
+    lastOrder: null, notice: ""
+  };
+  state.cart = state.cart.filter((i) => findProduct(i.id));  // товары, которых уже нет в каталоге, убираем из корзины
+  if (problems.length) {
+    const names = { products: "каталог", cart: "корзина", orders: "история заказов", favs: "избранное" };
+    state.notice = "Часть сохранённых данных была повреждена или недоступна и заменена безопасными значениями: " +
+      problems.map((k) => names[k]).join(", ") + ".";
+  }
+
+  // ================= 4. Каталог =================
+  function findProduct(id) { return state.products.find((p) => p.id === id); }
+
+  function parsePrice(v) {                                 // пустое или неверное значение = фильтр не применяется
+    if (v === "" || v === null) return null;
+    const n = Number(v);
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  }
+  function filtersActive() {
+    return state.query.trim() !== "" || state.cat !== "" || parsePrice(state.min) !== null ||
+           parsePrice(state.max) !== null || state.sort !== "popular";
+  }
+  // Поиск, категория, диапазон цен и сортировка работают вместе
+  function getVisible() {
+    const q = state.query.trim().toLowerCase();
+    const min = parsePrice(state.min), max = parsePrice(state.max);
+    const sorters = { popular: (a, b) => b.popular - a.popular, asc: (a, b) => a.price - b.price, desc: (a, b) => b.price - a.price };
+    return state.products
+      .filter((p) => (!q || p.name.toLowerCase().includes(q)) && (!state.cat || p.category === state.cat) &&
+                     (min === null || p.price >= min) && (max === null || p.price <= max))
+      .sort(sorters[state.sort] || sorters.popular);
+  }
+
+  // ================= 4а. Избранное =================
+  // В state.favs лежат только id товаров. Название и цену берём из каталога, поэтому они всегда актуальны.
+  const isFav = (id) => state.favs.includes(id);
+  const favCount = () => state.favs.length;
+  const favProducts = () => state.favs.map(findProduct).filter(Boolean);
+
+  function syncFavs() {                                    // убираем из избранного товары, которых больше нет в каталоге
+    const kept = state.favs.filter((id) => findProduct(id));
+    if (kept.length !== state.favs.length) { state.favs = kept; saveFavs(); }
+  }
+  function toggleFav(id) {                                 // сердце: добавить или убрать
+    if (!findProduct(id)) { toast("Товар не найден", true); return; }
+    if (isFav(id)) {
+      state.favs = state.favs.filter((x) => x !== id);
+      toast("Убрано из избранного");
+    } else {
+      state.favs.unshift(id);                              // новые товары сверху
+      toast("Добавлено в избранное");
+    }
+    saveFavs();
+    render();                                              // перерисовка синхронизирует все сердца и список
+  }
+
+  // ================= 5. Корзина =================
+  function cartLines() {                                   // позиции корзины вместе с данными товара
+    return state.cart.map((item) => ({ item, p: findProduct(item.id) })).filter((l) => l.p);
+  }
+  const cartCount = () => state.cart.reduce((s, i) => s + i.qty, 0);
+  const cartTotal = () => cartLines().reduce((s, l) => s + l.p.price * l.item.qty, 0);
+
+  function addToCart(id) {
+    const p = findProduct(id);
+    if (!p) { toast("Товар не найден", true); return; }
+    if (!p.available) { toast("Этого товара нет в наличии", true); return; }
+    const item = state.cart.find((i) => i.id === id);
+    if (item) {                                            // повторное добавление увеличивает количество
+      if (item.qty >= MAX_QTY) { toast("Максимум " + MAX_QTY + " шт. одного товара", true); return; }
+      item.qty += 1;
+    } else {
+      state.cart.push({ id, qty: 1 });
+    }
+    saveCart();
+    toast("В корзине: " + p.name);
+    render();
+  }
+  function changeQty(id, delta) {
+    const item = state.cart.find((i) => i.id === id);
+    if (!item) return;
+    const qty = item.qty + delta;
+    if (qty < 1) return;                                   // меньше 1 нельзя, для удаления есть кнопка
+    if (qty > MAX_QTY) { toast("Максимум " + MAX_QTY + " шт. одного товара", true); return; }
+    item.qty = qty;
+    saveCart();
+    render();
+  }
+  function removeItem(id) { state.cart = state.cart.filter((i) => i.id !== id); saveCart(); render(); }
+  function clearCart() { state.cart = []; saveCart(); render(); }
+
+  // ================= 6. Заказы =================
+  function validateForm(f) {
+    const e = {};
+    const name = f.name.trim(), contact = f.contact.trim();
+    if (name.length < 2) e.name = "Введите имя (минимум 2 символа)";
+    if (contact.length < 3) e.contact = "Укажите телефон, e-mail или Telegram";
+    else if (!/^(\+?[\d\s\-()]{7,}|[^\s@]+@[^\s@]+\.[^\s@]+|@?[A-Za-z0-9_]{4,32})$/.test(contact)) e.contact = "Контакт не похож на телефон, e-mail или Telegram";
+    if (f.comment.length > 300) e.comment = "Комментарий не длиннее 300 символов";
+    return e;
+  }
+  function newOrderId() {                                  // уникальный номер: проверяем, что такого ещё нет
+    let id;
+    do {
+      id = "WS-" + Date.now().toString(36).toUpperCase().slice(-5) +
+           Math.floor(Math.random() * 46656).toString(36).toUpperCase().padStart(3, "0");
+    } while (state.orders.some((o) => o.id === id));
+    return id;
+  }
+  function placeOrder() {
+    const lines = cartLines();
+    if (!lines.length) { toast("Корзина пуста", true); go("cart"); return; }
+    if (lines.some((l) => !l.p.available)) { toast("В корзине есть товар, которого нет в наличии", true); go("cart"); return; }
+    state.errors = validateForm(state.form);
+    if (Object.keys(state.errors).length) { render(); return; }
+    const order = {
+      id: newOrderId(), createdAt: new Date().toISOString(), status: STATUSES[0],
+      customer: { name: state.form.name.trim(), contact: state.form.contact.trim(), comment: state.form.comment.trim() },
+      items: lines.map((l) => ({ id: l.p.id, name: l.p.name, price: l.p.price, qty: l.item.qty })),   // цены фиксируем на момент заказа
+      total: cartTotal()
+    };
+    state.orders.unshift(order);
+    saveOrders();
+    state.cart = []; saveCart();                           // корзину очищаем только после создания заказа
+    state.form = { name: "", contact: "", comment: "" }; state.errors = {};
+    state.lastOrder = order.id;
+    go("success");
+  }
+
+  // ================= 7. Вспомогательные функции вида =================
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const rub = (n) => n.toLocaleString("ru-RU") + " ₽";
+  const fmtDate = (iso) => new Date(iso).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+  const badge = (status) => `<span class="badge s${STATUSES.indexOf(status)}">${esc(status)}</span>`;
+  let toastTimer = null;
+  function toast(message, isError) {
+    const el = $("toast");
+    el.textContent = message;
+    el.className = "show" + (isError ? " error" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = ""; }, 2400);
+  }
+  function go(view) { state.view = view; state.openProduct = null; state.openOrder = null; window.scrollTo(0, 0); render(); }
+
+  const tile = (p, big) => {
+    const letter = p.name.replace(/[^\p{L}\p{N}]/gu, "").charAt(0).toUpperCase();
+    return `<div class="tile${big ? " big" : ""}" style="--h:${HUES[CATS.indexOf(p.category)]}">${esc(letter)}</div>`;
+  };
+  const addBtn = (p) => p.available
+    ? `<button class="btn small" data-act="add" data-id="${esc(p.id)}">В корзину</button>`
+    : `<span class="out">Нет в наличии</span>`;
+  const heartIcon = (on) => `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" style="display:block"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${on ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`;
+  const heartBtn = (p) => `<button class="heart${isFav(p.id) ? " on" : ""}" data-act="fav" data-id="${esc(p.id)}" aria-pressed="${isFav(p.id)}" aria-label="${isFav(p.id) ? "Убрать из избранного" : "Добавить в избранное"}">${heartIcon(isFav(p.id))}</button>`;
+  const productCard = (p) => `<article class="card prod" data-act="open" data-id="${esc(p.id)}">${tile(p)}${heartBtn(p)}
+    <div class="pinfo"><div class="pcat">${esc(p.category)}</div><h3>${esc(p.name)}</h3>
+    <div class="pbottom"><b>${rub(p.price)}</b>${addBtn(p)}</div></div></article>`;
+  const empty = (title, text, btnText, view) => `<div class="empty"><h2>${title}</h2><p class="muted">${text}</p>
+    <button class="btn" data-act="go" data-view="${view}">${btnText}</button></div>`;
+
+  // ================= 8. Экраны =================
+  function viewResults() {                                 // список товаров: обновляется при вводе без потери фокуса
+    if (!filtersActive()) {
+      const popular = state.products.filter((p) => p.popular && p.available).slice(0, 6);
+      const recommended = state.products.filter((p) => !p.popular && p.available).slice(0, 4);
+      return `<h2>Популярное</h2><div class="scroll">${popular.map(productCard).join("")}</div>
+        <h2>Рекомендуем</h2>${recommended.map(productCard).join("")}
+        <h2>Весь каталог</h2>${getVisible().map(productCard).join("")}`;
+    }
+    const list = getVisible();
+    const head = `<button class="link" data-act="reset">Сбросить фильтры</button>`;
+    if (!list.length) return head + `<div class="empty"><h2>Ничего не найдено</h2><p class="muted">Измените запрос, категорию или диапазон цен.</p></div>`;
+    return head + `<p class="muted">Найдено: ${list.length}</p><div style="height:10px"></div>${list.map(productCard).join("")}`;
+  }
+  function viewShop() {
+    const sortOptions = [["popular", "Сначала популярные"], ["asc", "Сначала дешёвые"], ["desc", "Сначала дорогие"]]
+      .map(([v, t]) => `<option value="${v}"${state.sort === v ? " selected" : ""}>${t}</option>`).join("");
+    return `<p class="muted">Wecks Shop</p><h1>Цифровые товары для игр</h1>
+      <input type="search" placeholder="Поиск по названию" value="${esc(state.query)}" data-field="query" aria-label="Поиск по названию">
+      <div class="chips">${["", ...CATS].map((c) => `<button class="chip${state.cat === c ? " on" : ""}" data-act="cat" data-cat="${esc(c)}">${c || "Все"}</button>`).join("")}</div>
+      <div class="filters">
+        <input inputmode="numeric" placeholder="Цена от, ₽" value="${esc(state.min)}" data-field="min" aria-label="Цена от">
+        <input inputmode="numeric" placeholder="Цена до, ₽" value="${esc(state.max)}" data-field="max" aria-label="Цена до">
+        <select data-field="sort" aria-label="Сортировка">${sortOptions}</select>
+      </div>
+      <div id="results">${viewResults()}</div>`;
+  }
+  function viewCart() {
+    const lines = cartLines();
+    if (!lines.length) return empty("Корзина пуста", "Добавьте товары из каталога.", "Перейти в каталог", "shop");
+    const unavailable = lines.some((l) => !l.p.available);
+    const rows = lines.map(({ item, p }) => `<div class="card"><div class="row">${tile(p)}
+      <div class="grow"><h3>${esc(p.name)}</h3><div class="muted">${rub(p.price)} × ${item.qty} = <b>${rub(p.price * item.qty)}</b></div>
+      ${p.available ? "" : `<div class="err">Нет в наличии</div>`}</div></div>
+      <div class="row" style="margin-top:10px;justify-content:space-between">
+        <div class="step"><button data-act="dec" data-id="${esc(p.id)}" aria-label="Меньше"${item.qty <= 1 ? " disabled" : ""}>−</button>
+        <span>${item.qty}</span><button data-act="inc" data-id="${esc(p.id)}" aria-label="Больше">+</button></div>
+        <button class="link" data-act="del" data-id="${esc(p.id)}">Удалить</button></div></div>`).join("");
+    return `<h1>Корзина</h1>${rows}
+      <div class="card"><div class="line"><span>Товаров</span><b>${cartCount()}</b></div>
+      <div class="line total"><span>Итого</span><b>${rub(cartTotal())}</b></div></div>
+      ${unavailable ? `<p class="err">Есть недоступные товары. Удалите их, чтобы оформить заказ.</p>` : ""}
+      <button class="btn" data-act="checkout"${unavailable ? " disabled" : ""}>Оформить заказ</button>
+      <button class="btn ghost" data-act="clear">Очистить корзину</button>`;
+  }
+  function field(label, key, input, error) {
+    return `<div class="field"><label>${label}</label>${input}${error ? `<div class="err">${error}</div>` : ""}</div>`;
+  }
+  function viewCheckout() {
+    if (!cartLines().length) return empty("Корзина пуста", "Для оформления нужен хотя бы один товар.", "Перейти в каталог", "shop");
+    const f = state.form, e = state.errors;
+    return `<h1>Оформление</h1>
+      <p class="muted" style="margin-bottom:14px">Демонстрационный заказ: оплата не производится, платёжные данные не нужны.</p>
+      <form id="orderForm" novalidate>
+        ${field("Имя", "name", `<input data-form="name" value="${esc(f.name)}" autocomplete="name" placeholder="Как к вам обращаться">`, e.name)}
+        ${field("Контакт для связи", "contact", `<input data-form="contact" value="${esc(f.contact)}" placeholder="Телефон, e-mail или Telegram">`, e.contact)}
+        ${field("Комментарий (необязательно)", "comment", `<textarea data-form="comment" placeholder="Пожелания к заказу">${esc(f.comment)}</textarea>`, e.comment)}
+        <div class="card"><div class="line total" style="border:0;margin:0;padding:0"><span>К оплате (тест)</span><b>${rub(cartTotal())}</b></div></div>
+        <button class="btn" type="submit">Подтвердить заказ</button>
+      </form>
+      <button class="btn ghost" data-act="go" data-view="cart">Назад в корзину</button>`;
+  }
+  function viewSuccess() {
+    const o = state.orders.find((x) => x.id === state.lastOrder);
+    if (!o) return empty("Заказ не найден", "Откройте историю заказов.", "К заказам", "orders");
+    return `<div class="empty"><h2>Заказ оформлен</h2><p class="muted">Номер заказа</p><h1>${esc(o.id)}</h1>
+      <p class="muted">Сумма: ${rub(o.total)}. Это тестовый заказ, оплата не списывалась.</p>
+      <button class="btn" data-act="order" data-id="${esc(o.id)}">Открыть заказ</button>
+      <button class="btn ghost" data-act="go" data-view="shop">Вернуться в магазин</button></div>`;
+  }
+  function viewOrders() {
+    if (!state.orders.length) return empty("Заказов пока нет", "Оформленные заказы появятся здесь.", "Перейти в каталог", "shop");
+    return `<h1>Мои заказы</h1>` + state.orders.map((o) => `<article class="card" data-act="order" data-id="${esc(o.id)}" style="cursor:pointer">
+      <div class="line"><b>${esc(o.id)}</b>${badge(o.status)}</div>
+      <div class="muted">${fmtDate(o.createdAt)} · позиций: ${o.items.length}</div>
+      <div class="line" style="padding-bottom:0"><span class="muted">Итого</span><b>${rub(o.total)}</b></div></article>`).join("");
+  }
+
+  function viewFavs() {
+    const list = favProducts();
+    if (!list.length) return empty("В избранном пока пусто", "Нажимайте на сердце у товара, чтобы сохранить его здесь.", "Выбрать товары", "shop");
+    return `<h1>Избранное · ${list.length}</h1>${list.map(productCard).join("")}`;
+  }
+
+  // ================= 9. Окна поверх страницы =================
+  function renderModal() {
+    const m = $("modal");
+    let body = "";
+    if (state.confirm) {
+      body = `<h2 style="margin-top:0">${esc(state.confirm.text)}</h2>
+        <button class="btn" data-act="yes">Подтвердить</button><button class="btn ghost" data-act="close">Отмена</button>`;
+    } else if (state.openProduct && findProduct(state.openProduct)) {
+      const p = findProduct(state.openProduct);
+      body = `<div class="row" style="align-items:flex-start">${tile(p, true)}<div class="grow"><div class="pcat">${esc(p.category)}</div>
+        <h2 style="margin:0 0 6px">${esc(p.name)}</h2><div class="muted">${p.available ? "В наличии" : "Нет в наличии"}${p.popular ? " · Популярный товар" : ""}</div></div>${heartBtn(p)}</div>
+        <p style="line-height:1.5">${esc(p.description || "Описание не указано.")}</p>
+        <div class="line total"><span>Цена</span><b>${rub(p.price)}</b></div>
+        ${p.available ? `<button class="btn" data-act="add" data-id="${esc(p.id)}">Добавить в корзину</button>` : ""}
+        <button class="btn ghost" data-act="close">Закрыть</button>`;
+    } else if (state.openOrder && state.orders.find((o) => o.id === state.openOrder)) {
+      const o = state.orders.find((x) => x.id === state.openOrder);
+      body = `<div class="line"><h2 style="margin:0">${esc(o.id)}</h2>${badge(o.status)}</div>
+        <p class="muted">${fmtDate(o.createdAt)}</p><h3 style="margin-top:14px">Состав заказа</h3>
+        ${o.items.map((i) => `<div class="line"><span>${esc(i.name)}<br><span class="muted">${rub(i.price)} × ${i.qty}</span></span><b>${rub(i.price * i.qty)}</b></div>`).join("")}
+        <div class="line total"><span>Итого</span><b>${rub(o.total)}</b></div>
+        <h3 style="margin-top:14px">Покупатель</h3><p class="muted">${esc(o.customer.name)}<br>${esc(o.customer.contact)}${o.customer.comment ? "<br>Комментарий: " + esc(o.customer.comment) : ""}</p>
+        <button class="btn ghost" data-act="close">Закрыть</button>`;
+    }
+    m.innerHTML = body ? `<div class="back" data-act="backdrop"><div class="sheet">${body}</div></div>` : "";
+  }
+  function askConfirm(text, onYes) { state.confirm = { text, onYes }; renderModal(); }
+
+  // ================= 10. Отрисовка и события =================
+  function renderNav() {
+    const tabs = [["shop", "Магазин"], ["favs", "Избранное"], ["cart", "Корзина"], ["orders", "Заказы"]];
+    const counts = { favs: favCount(), cart: cartCount() };   // числа на значках вкладок
+    const active = state.view === "checkout" ? "cart" : state.view === "success" ? "orders" : state.view;
+    $("nav").innerHTML = tabs.map(([v, t]) => `<button class="${active === v ? "on" : ""}" data-act="go" data-view="${v}">${t}` +
+      `${counts[v] ? `<span class="dot">${counts[v]}</span>` : ""}</button>`).join("");
+  }
+  function render() {
+    syncFavs();                                            // удалённые из каталога товары не остаются в избранном
+    const views = { shop: viewShop, favs: viewFavs, cart: viewCart, checkout: viewCheckout, success: viewSuccess, orders: viewOrders };
+    const banner = state.notice ? `<div class="banner">${esc(state.notice)} <button class="link" data-act="dismiss" style="padding:6px 0">Понятно</button></div>` : "";
+    $("app").innerHTML = banner + views[state.view]();
+    renderNav();
+    renderModal();
+  }
+
+  const actions = {
+    go: (d) => go(d.view),
+    cat: (d) => { state.cat = d.cat; render(); },
+    reset: () => { Object.assign(state, { query: "", cat: "", min: "", max: "", sort: "popular" }); render(); },
+    open: (d) => { state.openProduct = d.id; renderModal(); },
+    order: (d) => { state.openOrder = d.id; renderModal(); },
+    close: () => { state.openProduct = null; state.openOrder = null; state.confirm = null; renderModal(); },
+    add: (d) => addToCart(d.id),
+    fav: (d) => toggleFav(d.id),
+    inc: (d) => changeQty(d.id, 1),
+    dec: (d) => changeQty(d.id, -1),
+    del: (d) => removeItem(d.id),
+    clear: () => askConfirm("Очистить всю корзину?", clearCart),
+    yes: () => { const fn = state.confirm.onYes; state.confirm = null; renderModal(); fn(); },
+    checkout: () => { state.errors = {}; go("checkout"); },
+    dismiss: () => { state.notice = ""; render(); }
+  };
+
+  document.addEventListener("click", (e) => {
+    const el = e.target.closest("[data-act]");
+    if (!el) return;
+    if (el.dataset.act === "backdrop") { if (e.target === el) actions.close(); return; }   // клик по фону закрывает окно
+    if (actions[el.dataset.act]) actions[el.dataset.act](el.dataset);
+  });
+  document.addEventListener("input", (e) => {
+    const t = e.target;
+    if (t.dataset && t.dataset.field) { state[t.dataset.field] = t.value; $("results").innerHTML = viewResults(); }   // фильтры
+    else if (t.dataset && t.dataset.form) { state.form[t.dataset.form] = t.value; }                                   // поля формы
+  });
+  document.addEventListener("submit", (e) => { e.preventDefault(); placeOrder(); });
+
+  // Первый запуск: сохраняем демо-данные, дальше они восстанавливаются из памяти браузера
+  saveProducts(); saveCart(); saveOrders(); saveFavs();
+  render();
+</script>
+</body>
+</html>
